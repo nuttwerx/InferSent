@@ -103,11 +103,11 @@ class InferSent(nn.Module):
         word_dict[self.eos] = ''
         return word_dict
 
-    def get_w2v(self, word_dict):
+    def get_w2v(self, word_dict, encoding):
         assert hasattr(self, 'w2v_path'), 'w2v path not set'
         # create word_vec with w2v vectors
         word_vec = {}
-        with open(self.w2v_path) as f:
+        with open(self.w2v_path, encoding = encoding) as f:
             for line in f:
                 word, vec = line.split(' ', 1)
                 if word in word_dict:
@@ -115,12 +115,12 @@ class InferSent(nn.Module):
         print('Found %s(/%s) words with w2v vectors' % (len(word_vec), len(word_dict)))
         return word_vec
 
-    def get_w2v_k(self, K):
+    def get_w2v_k(self, K, encoding):
         assert hasattr(self, 'w2v_path'), 'w2v path not set'
         # create word_vec with k first w2v vectors
         k = 0
         word_vec = {}
-        with open(self.w2v_path) as f:
+        with open(self.w2v_path, encoding = encoding) as f:
             for line in f:
                 word, vec = line.split(' ', 1)
                 if k <= K:
@@ -134,16 +134,16 @@ class InferSent(nn.Module):
                     break
         return word_vec
 
-    def build_vocab(self, sentences, tokenize=True):
+    def build_vocab(self, sentences, encoding="utf-8", tokenize=True):
         assert hasattr(self, 'w2v_path'), 'w2v path not set'
         word_dict = self.get_word_dict(sentences, tokenize)
-        self.word_vec = self.get_w2v(word_dict)
+        self.word_vec = self.get_w2v(word_dict, encoding)
         print('Vocab size : %s' % (len(self.word_vec)))
 
     # build w2v vocab with k most frequent words
-    def build_vocab_k_words(self, K):
+    def build_vocab_k_words(self, K, encoding="utf-8"):
         assert hasattr(self, 'w2v_path'), 'w2v path not set'
-        self.word_vec = self.get_w2v_k(K)
+        self.word_vec = self.get_w2v_k(K, encoding)
         print('Vocab size : %s' % (K))
 
     def update_vocab(self, sentences, tokenize=True):
